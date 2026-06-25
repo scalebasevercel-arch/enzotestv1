@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Casa Food · Kontrolpanel</title>
+<style>
+  :root{
+    --bg:#F5F5F7; --surface:#fff; --surface-2:#FBFBFD; --surface-3:#F2F2F4;
+    --ink:#1D1D1F; --ink-2:#6E6E73; --ink-3:#98989F;
+    --line:rgba(0,0,0,.09); --line-2:rgba(0,0,0,.05);
+    --blue:#0A84FF; --green:#34C759; --orange:#FF9F0A; --red:#FF3B30; --purple:#AF52DE; --teal:#30B0C7;
+    --radius:18px; --radius-sm:12px; --radius-xs:9px;
+    --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.05);
+    --shadow-lg:0 12px 48px rgba(0,0,0,.22);
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-size:15px;line-height:1.45}
+  #root{height:100%}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input,select,textarea{font-family:inherit;font-size:15px}
+  ::selection{background:rgba(10,132,255,.18)}
+  a{color:var(--blue);text-decoration:none}
+
+  .app{display:flex;height:100%;overflow:hidden}
+  .side{width:248px;flex:0 0 248px;background:var(--surface-2);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;padding:18px 14px 14px}
+  .brand{display:flex;align-items:center;gap:11px;padding:8px 10px 18px}
+  .brand .mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#FF9F0A,#FF3B30);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;letter-spacing:-.5px;
+    box-shadow:0 2px 8px rgba(255,90,30,.35)}
+  .brand h1{font-size:16px;font-weight:680;margin:0;letter-spacing:-.2px}
+  .brand p{font-size:11.5px;color:var(--ink-3);margin:1px 0 0;font-weight:500}
+  .nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto;margin-top:4px}
+  .nav button{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;
+    font-size:14.5px;font-weight:520;color:var(--ink-2);text-align:left;transition:background .12s,color .12s;width:100%}
+  .nav button svg{width:18px;height:18px;flex:0 0 18px;opacity:.85}
+  .nav button:hover{background:rgba(0,0,0,.04);color:var(--ink)}
+  .nav button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+  .nav button.on svg{color:var(--blue);opacity:1}
+  .nav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:11px;font-weight:680;
+    min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+  .acct{border-top:1px solid var(--line);padding-top:12px;margin-top:8px;display:flex;align-items:center;gap:10px}
+  .acct .av{width:32px;height:32px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;
+    justify-content:center;font-weight:650;color:var(--ink-2);font-size:13px}
+  .acct .who{flex:1;min-width:0}
+  .acct .who b{font-size:13.5px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .acct .who span{font-size:11.5px;color:var(--ink-3)}
+  .acct .out{padding:6px;border-radius:8px;color:var(--ink-3)}
+  .acct .out:hover{background:rgba(0,0,0,.05);color:var(--red)}
+
+  .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+  .top{position:sticky;top:0;z-index:5;background:rgba(245,245,247,.82);backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line-2);
+    padding:20px 34px 16px;display:flex;align-items:flex-end;gap:16px}
+  .top h2{margin:0;font-size:27px;font-weight:720;letter-spacing:-.5px}
+  .top p{margin:3px 0 0;font-size:13.5px;color:var(--ink-3);font-weight:480}
+  .top .sp{flex:1}
+  .wrap{padding:26px 34px 60px;max-width:1180px;width:100%}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:11px;font-size:14px;
+    font-weight:580;transition:transform .08s,background .15s,box-shadow .15s;white-space:nowrap}
+  .btn:active{transform:scale(.97)}
+  .btn svg{width:16px;height:16px}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(10,132,255,.4)}
+  .btn-primary:hover{background:#0a78e8}
+  .btn-sec{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow)}
+  .btn-sec:hover{background:var(--surface-2)}
+  .btn-ghost{color:var(--blue);padding:9px 12px}
+  .btn-ghost:hover{background:rgba(10,132,255,.08)}
+  .btn-danger{background:rgba(255,59,48,.1);color:var(--red)}
+  .btn-danger:hover{background:rgba(255,59,48,.16)}
+  .btn-sm{padding:6px 11px;font-size:13px;border-radius:9px}
+  .btn[disabled]{opacity:.5;pointer-events:none}
+
+  .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--line-2)}
+  .pad{padding:20px}
+  .grid{display:grid;gap:16px}
+  .kpis{grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+  .kpi{padding:17px 18px}
+  .kpi .lab{font-size:11.5px;color:var(--ink-3);font-weight:620;letter-spacing:.3px;text-transform:uppercase}
+  .kpi .val{font-size:29px;font-weight:700;letter-spacing:-.8px;margin-top:7px;line-height:1}
+  .kpi .sub{font-size:12.5px;color:var(--ink-2);margin-top:6px;font-weight:480}
+  .kpi .sub.warn{color:var(--orange);font-weight:560}
+  .sectitle{font-size:13px;font-weight:640;color:var(--ink-3);letter-spacing:.3px;text-transform:uppercase;margin:30px 0 12px}
+
+  .tbl{width:100%;border-collapse:collapse;overflow:hidden}
+  .tbl th{text-align:left;font-size:11.5px;color:var(--ink-3);font-weight:620;letter-spacing:.3px;
+    text-transform:uppercase;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:13px 16px;border-bottom:1px solid var(--line-2);font-size:14px;vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tbody tr{transition:background .1s}
+  .tbl tbody tr.clk{cursor:pointer}
+  .tbl tbody tr.clk:hover{background:var(--surface-2)}
+  .tbl .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:560}
+  .tbl .muted{color:var(--ink-3)}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;
+    font-weight:600;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px}
+  .cdot{display:inline-flex;align-items:center;gap:7px;font-weight:500}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9px;background:var(--surface-3);
+    font-size:12.5px;font-weight:560;color:var(--ink-2)}
+
+  .bars{display:flex;align-items:flex-end;gap:10px;height:120px;padding-top:8px}
+  .bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+  .bars .b .fill{width:100%;max-width:34px;border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,#0a84ff,#48a6ff);
+    transition:height .5s cubic-bezier(.2,.7,.3,1)}
+  .bars .b .lab{font-size:11px;color:var(--ink-3);font-weight:560}
+  .cbar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}
+  .cbar i{display:block;height:100%;border-radius:6px}
+
+  .row{display:flex;align-items:center;gap:13px;padding:11px 4px;border-bottom:1px solid var(--line-2)}
+  .row:last-child{border-bottom:none}
+  .row .ic{width:30px;height:30px;border-radius:8px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface-3);color:var(--ink-2)}
+  .row .gr{flex:1;min-width:0}
+  .row .gr b{font-size:14px;font-weight:560;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .gr span{font-size:12.5px;color:var(--ink-3)}
+  .row .rt{font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+
+  .ic svg{width:17px;height:17px}
+  .acct .out svg,.menubtn svg{width:19px;height:19px}
+  .empty{text-align:center;padding:46px 20px;color:var(--ink-3)}
+  .empty svg{width:34px;height:34px;opacity:.4;margin-bottom:10px}
+  .empty b{display:block;color:var(--ink-2);font-weight:580;font-size:15px;margin-bottom:3px}
+
+  .ovl{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.32);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .18s ease}
+  .sheet{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-lg);width:100%;max-width:560px;
+    max-height:90vh;overflow-y:auto;animation:pop .24s cubic-bezier(.2,.8,.3,1)}
+  .sheet.wide{max-width:720px}
+  .sheet-h{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);z-index:2;
+    padding:20px 24px 14px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:12px}
+  .sheet-h h3{margin:0;font-size:19px;font-weight:680;letter-spacing:-.3px;flex:1}
+  .sheet-h .x{width:30px;height:30px;border-radius:50%;background:var(--surface-3);color:var(--ink-2);
+    display:flex;align-items:center;justify-content:center;font-size:17px}
+  .sheet-h .x:hover{background:var(--line)}
+  .sheet-b{padding:20px 24px 24px}
+  .sheet-f{position:sticky;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+    padding:14px 24px;border-top:1px solid var(--line-2);display:flex;gap:10px;justify-content:flex-end}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+
+  .fld{margin-bottom:15px}
+  .fld>label{display:block;font-size:13px;font-weight:560;color:var(--ink-2);margin-bottom:6px}
+  .fld input,.fld select,.fld textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    background:var(--surface);color:var(--ink);transition:border .15s,box-shadow .15s;outline:none}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3.5px rgba(10,132,255,.16)}
+  .fld textarea{resize:vertical;min-height:120px;line-height:1.5}
+  .fld .hint{font-size:12px;color:var(--ink-3);margin-top:5px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .check{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:500;cursor:pointer;padding:4px 0}
+  .check input{width:auto}
+
+  .dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:14px}
+  .dl dt{color:var(--ink-3);font-weight:520}
+  .dl dd{margin:0;font-weight:520}
+  .minicard{background:var(--surface-2);border:1px solid var(--line-2);border-radius:13px;padding:14px 16px}
+  .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .stat3 .s{background:var(--surface-2);border-radius:13px;padding:13px 14px;text-align:center}
+  .stat3 .s b{font-size:20px;font-weight:700;letter-spacing:-.4px;display:block}
+  .stat3 .s span{font-size:11.5px;color:var(--ink-3);font-weight:560}
+
+  .chat{display:flex;flex-direction:column;gap:9px}
+  .bub{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .bub.u{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px}
+  .bub.e{align-self:flex-start;background:var(--surface-3);color:var(--ink);border-bottom-left-radius:5px}
+  .bub.s{align-self:center;background:transparent;color:var(--ink-3);font-size:12px;font-style:italic}
+
+  .toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .toast{background:rgba(28,28,30,.94);color:#fff;padding:11px 18px;border-radius:13px;font-size:14px;font-weight:520;
+    box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;animation:pop .2s ease;backdrop-filter:blur(10px)}
+  .toast.err{background:rgba(255,59,48,.96)}
+  .toast .d{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+  .login{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:radial-gradient(120% 120% at 50% 0%,#fff 0%,#F5F5F7 60%)}
+  .login .box{width:100%;max-width:380px;text-align:center}
+  .login .mark{width:62px;height:62px;border-radius:18px;background:linear-gradient(145deg,#FF9F0A,#FF3B30);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:30px;margin:0 auto 20px;
+    box-shadow:0 8px 28px rgba(255,90,30,.4)}
+  .login h1{font-size:25px;font-weight:720;letter-spacing:-.5px;margin:0 0 5px}
+  .login p{color:var(--ink-3);margin:0 0 26px;font-size:14.5px}
+  .login .card{padding:22px;text-align:left}
+  .login .err{color:var(--red);font-size:13px;margin-top:10px;text-align:center;font-weight:520}
+
+  .spin{width:20px;height:20px;border:2.5px solid rgba(0,0,0,.12);border-top-color:var(--blue);border-radius:50%;
+    animation:rot .7s linear infinite;display:inline-block}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .center{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--ink-3)}
+
+  .menubtn{display:none}
+  @media(max-width:860px){
+    .side{position:fixed;inset:0 auto 0 0;z-index:30;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+    .side.open{transform:none}
+    .scrim{display:none;position:fixed;inset:0;z-index:29;background:rgba(0,0,0,.25)}
+    .scrim.open{display:block}
+    .menubtn{display:inline-flex;width:38px;height:38px;border-radius:10px;align-items:center;justify-content:center;
+      background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+    .top{padding:16px 18px 14px}.wrap{padding:20px 18px 60px}.top h2{font-size:23px}
+    .frow{grid-template-columns:1fr}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"><div class="center"><span class="spin"></span> Indlæser…</div></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+/* ============ Supabase ============ */
+const SUPABASE_URL = "https://vakumjnnmfyqkcoxqcra.supabase.co";
+const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZha3Vtam5ubWZ5cWtjb3hxY3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDYwMTQsImV4cCI6MjA5NzI4MjAxNH0.uuQo0LEy6yDzkLIMg-vEhyevAbvaVCGPCh569h0SzFk";
+const supa = window.supabase.createClient(SUPABASE_URL, ANON);
+
+/* ============ Helpers ============ */
+const kr = n => (Number(n)||0).toLocaleString("da-DK",{maximumFractionDigits:0})+" kr";
+const krShort = n => { n=Number(n)||0; return n>=1000 ? (n/1000).toLocaleString("da-DK",{maximumFractionDigits:n>=10000?0:1})+"k kr" : n+" kr"; };
+function fmtDate(iso,withTime){
+  if(!iso) return "—";
+  const d=new Date(iso); if(isNaN(d)) return "—";
+  const dat=d.toLocaleDateString("da-DK",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  if(!withTime) return dat;
+  return dat+" kl. "+d.toLocaleTimeString("da-DK",{hour:"2-digit",minute:"2-digit"});
+}
+const toInput = iso => { if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return "";
+  const p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+const fromInput = v => v ? new Date(v).toISOString() : null;
+
+const CONCEPT_COLOR = { "Food Truck":"var(--green)", "Casanova":"var(--orange)", "The Blue Pearl":"var(--blue)" };
+const cColor = name => CONCEPT_COLOR[name] || "var(--ink-3)";
+const LOCATIONS=[["food_truck","Food Truck"],["casanova_pizza","Casanova"],["blue_pearl_thai","The Blue Pearl"]];
+const FOODTYPES=[["thai","Thai"],["pizza","Pizza"],["pasta","Pasta"]];
+const CTYPES=[["privat","Privat"],["virksomhed","Virksomhed"]];
+const B_STATUS=[["ny","Ny"],["afventer_info","Mangler info"],["afventer_vagter","Mangler vagter"],["klar_til_bekraeftelse","Klar til bekræftelse"],["lukket","Afsluttet"],["afvist","Afvist"],["aflyst","Aflyst"]];
+const I_STATUS=[["kladde","Kladde"],["sendt","Sendt"],["betalt","Betalt"],["annulleret","Annulleret"]];
+const K_TYPE=[["velkomst","Velkomst"],["opfoelgning","Opfølgning"],["faktura","Faktura"],["kontaktsvar","Kontaktsvar"],["tilbud","Tilbud"],["andet","Andet"]];
+const lbl = (arr,v) => (arr.find(x=>x[0]===v)||[null,v])[1];
+
+const STATUS_COLOR = {
+  ny:"var(--ink-3)", afventer_info:"var(--orange)", afventer_vagter:"var(--orange)",
+  klar_til_bekraeftelse:"var(--blue)", lukket:"var(--green)", afvist:"var(--red)", aflyst:"var(--red)",
+  kladde:"var(--ink-3)", sendt:"var(--blue)", betalt:"var(--green)", annulleret:"var(--ink-3)",
+  klar:"var(--blue)", aktiv:"var(--green)", afventer_godkendelse:"var(--orange)",
+  afventer_medarbejder:"var(--teal)", inaktiv:"var(--ink-3)",
+  aaben:"var(--orange)", tildelt:"var(--blue)", bekraeftet:"var(--green)", byttet:"var(--purple)"
+};
+const ST_LABEL = { ...Object.fromEntries(B_STATUS), ...Object.fromEntries(I_STATUS),
+  klar:"Klar", aktiv:"Aktiv", afventer_godkendelse:"Afventer godkendelse", afventer_medarbejder:"Afventer kobling",
+  inaktiv:"Inaktiv", aaben:"Åben", tildelt:"Tildelt", bekraeftet:"Bekræftet", byttet:"Byttet", sendt:"Sendt" };
+
+/* ============ Icons ============ */
+const I = ({d,fill})=> <svg viewBox="0 0 24 24" fill={fill?"currentColor":"none"} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
+const IC = {
+  overblik:<I d={<><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></>}/>,
+  arrangementer:<I d={<><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></>}/>,
+  kunder:<I d={<><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 4.5a3 3 0 0 1 0 6M18 20c0-2.4-1-4-2.5-4.6"/></>}/>,
+  medarbejdere:<I d={<><circle cx="12" cy="7.5" r="3.4"/><path d="M5 20c0-3.6 3-6 7-6s7 2.4 7 6"/></>}/>,
+  kladder:<I d={<><path d="M5 3.5h9l5 5V20a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 20V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M14 3.5V9h5M8 13h8M8 17h6"/></>}/>,
+  fakturaer:<I d={<><path d="M6 2.5h9l4 4V20l-2-1.3L15 20l-2-1.3L11 20 9 18.7 7 20 5 18.7V4a1.5 1.5 0 0 1 1-1.5Z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></>}/>,
+  samtaler:<I d={<path d="M21 11.5a8.5 7.5 0 0 1-12.4 6.7L3 20l1.9-4.2A8.5 7.5 0 1 1 21 11.5Z"/>}/>,
+  viden:<I d={<><path d="M4 5.5A2 2 0 0 1 6 4h6v16H6a2 2 0 0 1-2-1.8Z"/><path d="M20 5.5A2 2 0 0 0 18 4h-6v16h6a2 2 0 0 0 2-1.8Z"/></>}/>,
+  indstillinger:<I d={<><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V19a2 2 0 0 1-4 0v-.1A1.6 1.6 0 0 0 7 17.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4.6 11H4.5a2 2 0 0 1 0-4h.1A1.6 1.6 0 0 0 6 4.3L6 4.2a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 11 2.6h.1a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8Z"/></>}/>,
+  plus:<I d={<path d="M12 5v14M5 12h14"/>}/>,
+  edit:<I d={<path d="M14 5l5 5M4 20l1-4L16 5l3 3L8 19Z"/>}/>,
+  trash:<I d={<path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13"/>}/>,
+  link:<I d={<path d="M10 13a4 4 0 0 0 6 .5l2-2a4 4 0 0 0-5.7-5.7l-1 1M14 11a4 4 0 0 0-6-.5l-2 2a4 4 0 0 0 5.7 5.7l1-1"/>}/>,
+  check:<I d={<path d="M5 12.5l4.5 4.5L19 7"/>}/>,
+  out:<I d={<path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M16 16l4-4-4-4M20 12H9"/>}/>,
+  menu:<I d={<path d="M4 6h16M4 12h16M4 18h16"/>}/>,
+  inbox:<I d={<><path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5 5h14l1.5 8V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19v-6Z"/></>}/>,
+};
+
+/* ============ Small components ============ */
+const Pill = ({status}) => {
+  const c = STATUS_COLOR[status]||"var(--ink-3)"; const t = ST_LABEL[status]||status;
+  return <span className="pill" style={{background:`color-mix(in srgb, ${c} 14%, transparent)`,color:c}}>
+    <span className="dot" style={{background:c}}></span>{t}</span>;
+};
+const CDot = ({name}) => <span className="cdot"><span className="dot" style={{background:cColor(name)}}></span>{name||"—"}</span>;
+const Spin = ()=> <span className="spin"></span>;
+const Empty = ({title,sub}) => <div className="empty">{IC.inbox}<b>{title}</b>{sub&&<div>{sub}</div>}</div>;
+
+function Field({label,hint,children}){
+  return <div className="fld"><label>{label}</label>{children}{hint&&<div className="hint">{hint}</div>}</div>;
+}
+function Input(p){ return <input {...p}/>; }
+function Select({value,onChange,options,placeholder}){
+  return <select value={value??""} onChange={e=>onChange(e.target.value)}>
+    {placeholder!==undefined && <option value="">{placeholder}</option>}
+    {options.map(([v,t])=><option key={v} value={v}>{t}</option>)}
+  </select>;
+}
+
+function Modal({title,onClose,children,footer,wide}){
+  useEffect(()=>{ const h=e=>e.key==="Escape"&&onClose(); window.addEventListener("keydown",h); return ()=>window.removeEventListener("keydown",h);},[onClose]);
+  return <div className="ovl" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
+    <div className={"sheet"+(wide?" wide":"")}>
+      <div className="sheet-h"><h3>{title}</h3><button className="x" onClick={onClose}>×</button></div>
+      <div className="sheet-b">{children}</div>
+      {footer && <div className="sheet-f">{footer}</div>}
+    </div></div>;
+}
+
+/* ============ App ============ */
+function App(){
+  const [session,setSession]=useState(undefined);
+  const [dash,setDash]=useState(null);
+  const [adm,setAdm]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [view,setView]=useState("overblik");
+  const [modal,setModal]=useState(null);
+  const [toasts,setToasts]=useState([]);
+  const [navOpen,setNavOpen]=useState(false);
+  const [busy,setBusy]=useState(false);
+
+  const toast=useCallback((msg,err)=>{ const id=Math.random(); setToasts(t=>[...t,{id,msg,err}]);
+    setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),2600); },[]);
+
+  useEffect(()=>{ supa.auth.getSession().then(({data})=>setSession(data.session));
+    const {data:sub}=supa.auth.onAuthStateChange((_e,s)=>setSession(s)); return ()=>sub.subscription.unsubscribe(); },[]);
+
+  const load=useCallback(async()=>{
+    setLoading(true);
+    const [a,b]=await Promise.all([supa.rpc("dashboard_data"),supa.rpc("admin_data")]);
+    if(!a.error) setDash(a.data); if(!b.error) setAdm(b.data);
+    if(a.error||b.error) toast((a.error||b.error).message,true);
+    setLoading(false);
+  },[toast]);
+  useEffect(()=>{ if(session) load(); },[session,load]);
+
+  const act=useCallback(async(aktion,payload,okMsg)=>{
+    setBusy(true);
+    const {data,error}=await supa.rpc("admin_handling",{p_aktion:aktion,p_payload:payload});
+    setBusy(false);
+    if(error){ toast(error.message,true); return null; }
+    if(data&&data.ok===false){ toast(data.fejl||"Handlingen mislykkedes",true); return null; }
+    toast(okMsg||"Gemt"); await load(); return data;
+  },[toast,load]);
+
+  if(session===undefined) return <div className="center"><Spin/> Indlæser…</div>;
+  if(!session) return <Login toast={toast}/>;
+
+  const counts={
+    arrangementer:(dash?.noegletal?.bookinger_kommende)||0,
+    kladder:(adm?.kladder||[]).filter(k=>k.status==="klar").length,
+    medarbejdere:(adm?.medarbejdere||[]).filter(m=>m.status==="afventer_godkendelse").length,
+    fakturaer:(dash?.noegletal?.manglende_fakturaer)||0,
+  };
+  const NAV=[["overblik","Overblik"],["arrangementer","Arrangementer"],["kunder","Kunder"],
+    ["medarbejdere","Medarbejdere"],["kladder","Kladder"],["fakturaer","Fakturaer"],
+    ["samtaler","Samtaler"],["viden","Viden"],["indstillinger","Indstillinger"]];
+  const META={
+    overblik:["Overblik","Alt på ét sted"],
+    arrangementer:["Arrangementer","Se, opret og rediger alle arrangementer"],
+    kunder:["Kunder","Hele historikken for hver kunde"],
+    medarbejdere:["Medarbejdere","Styr løn, kontakt og onboarding"],
+    kladder:["Kladder","Mails klar til at sende"],
+    fakturaer:["Fakturaer","Hvad er sendt, betalt og mangler"],
+    samtaler:["Samtaler","Læs hele chat-historikken"],
+    viden:["Viden","Det Enzo må slå op i"],
+    indstillinger:["Indstillinger","Systemets opsætning"],
+  };
+  const props={dash,adm,act,busy,setModal,toast,reload:load};
+  const Body={overblik:Overblik,arrangementer:Arrangementer,kunder:Kunder,medarbejdere:Medarbejdere,
+    kladder:Kladder,fakturaer:Fakturaer,samtaler:Samtaler,viden:Viden,indstillinger:Indstillinger}[view];
+
+  const go=v=>{ setView(v); setNavOpen(false); };
+
+  return <div className="app">
+    <div className={"scrim"+(navOpen?" open":"")} onClick={()=>setNavOpen(false)}></div>
+    <aside className={"side"+(navOpen?" open":"")}>
+      <div className="brand"><div className="mark">C</div><div><h1>Casa Food</h1><p>Kontrolpanel</p></div></div>
+      <nav className="nav">{NAV.map(([k,t])=>
+        <button key={k} className={view===k?"on":""} onClick={()=>go(k)}>
+          {IC[k]}<span>{t}</span>{counts[k]>0 && <span className="badge">{counts[k]}</span>}
+        </button>)}</nav>
+      <div className="acct">
+        <div className="av">W</div>
+        <div className="who"><b>William</b><span>{session.user.email}</span></div>
+        <button className="out" title="Log ud" onClick={()=>supa.auth.signOut()}>{IC.out}</button>
+      </div>
+    </aside>
+    <main className="main">
+      <header className="top">
+        <button className="menubtn" onClick={()=>setNavOpen(true)}>{IC.menu}</button>
+        <div><h2>{META[view][0]}</h2><p>{META[view][1]}</p></div>
+        <div className="sp"></div>
+        <HeaderAction view={view} setModal={setModal}/>
+      </header>
+      <div className="wrap">
+        {loading && !adm ? <div className="center"><Spin/> Henter data…</div> : <Body {...props}/>}
+      </div>
+    </main>
+
+    {modal && <ModalRouter modal={modal} {...props}/>}
+    <div className="toasts">{toasts.map(t=>
+      <div key={t.id} className={"toast"+(t.err?" err":"")}>{!t.err&&<span className="d"></span>}{t.msg}</div>)}</div>
+  </div>;
+}
+
+function HeaderAction({view,setModal}){
+  const map={
+    arrangementer:["Nyt arrangement",()=>setModal({k:"booking"})],
+    kunder:["Ny kunde",()=>setModal({k:"customer"})],
+    medarbejdere:["Ny medarbejder",()=>setModal({k:"staff"})],
+    kladder:["Ny kladde",()=>setModal({k:"kladde"})],
+    fakturaer:["Ny faktura",()=>setModal({k:"faktura"})],
+  };
+  const a=map[view]; if(!a) return null;
+  return <button className="btn btn-primary" onClick={a[1]}>{IC.plus}{a[0]}</button>;
+}
+
+/* ============ Login ============ */
+function Login({toast}){
+  const [email,setEmail]=useState(""); const [pw,setPw]=useState("");
+  const [err,setErr]=useState(""); const [load,setLoad]=useState(false);
+  const submit=async()=>{ setErr(""); setLoad(true);
+    const {error}=await supa.auth.signInWithPassword({email:email.trim(),password:pw});
+    setLoad(false); if(error) setErr("Forkert email eller adgangskode."); };
+  return <div className="login"><div className="box">
+    <div className="mark">C</div>
+    <h1>Casa Food</h1><p>Log ind på dit kontrolpanel</p>
+    <div className="card">
+      <Field label="Email"><Input type="email" value={email} autoFocus
+        onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="william@casafood.dk"/></Field>
+      <Field label="Adgangskode"><Input type="password" value={pw}
+        onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="••••••••"/></Field>
+      <button className="btn btn-primary" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={load} onClick={submit}>
+        {load?<Spin/>:"Log ind"}</button>
+      {err&&<div className="err">{err}</div>}
+    </div>
+  </div></div>;
+}
+
+/* ============ OVERBLIK ============ */
+function Overblik({dash,adm,setModal}){
+  if(!dash) return <div className="center"><Spin/></div>;
+  const n=dash.noegletal||{};
+  const kpis=[
+    ["Omsætning · måned",kr(n.omsaetning_maaned), n.gns_ordre?`Gns. ordre ${kr(n.gns_ordre)}`:null],
+    ["Kommende",String(n.bookinger_kommende||0), "arrangementer"],
+    ["Bemanding",(n.bemandingsgrad??0)+"%", n.aabne_vagter?`${n.aabne_vagter} åbne vagter`:"alt dækket",n.aabne_vagter>0],
+    ["Gæster · måned",String(n.gaester_maaned||0),"kuverter"],
+    ["Kladder klar",String(n.kladder_klar||0),"venter på at blive sendt",n.kladder_klar>0],
+    ["Mangler faktura",String(n.manglende_fakturaer||0),n.manglende_fakturaer_beloeb?kr(n.manglende_fakturaer_beloeb):"alt faktureret",n.manglende_fakturaer>0],
+  ];
+  const mx=Math.max(1,...(dash.omsaetning_maanedlig||[]).map(m=>m.v));
+  const koncept=dash.per_koncept||[];
+  const kmax=Math.max(1,...koncept.map(k=>k.omsaetning));
+  const akt=dash.seneste_aktivitet||[];
+  const aktLabel=a=>({opdater_booking:"Booking opdateret",gem_kladde:"Kladde skrevet",flyt_vagt:"Vagt flyttet",
+    registrer_timer:"Timer registreret",godkend_medarbejder:"Medarbejder godkendt",tilfoej_medarbejder:"Medarbejder tilføjet",
+    enzo_svar:"Enzo svarede",dashboard_opgave:"Opgave til Enzo"}[a]|| (a||"").replace(/admin_handling:/,"").replace(/_/g," "));
+  return <>
+    <div className="grid kpis">{kpis.map((k,i)=>
+      <div key={i} className="card kpi"><div className="lab">{k[0]}</div><div className="val">{k[1]}</div>
+        {k[2]&&<div className={"sub"+(k[3]?" warn":"")}>{k[2]}</div>}</div>)}</div>
+
+    <div className="grid" style={{gridTemplateColumns:"1.4fr 1fr",marginTop:16}}>
+      <div className="card pad">
+        <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px"}}>Omsætning · 6 måneder</div>
+        <div className="bars">{(dash.omsaetning_maanedlig||[]).map((m,i)=>
+          <div key={i} className="b"><div className="fill" style={{height:Math.max(4,(m.v/mx)*100)+"%"}}></div><div className="lab">{m.m}</div></div>)}</div>
+      </div>
+      <div className="card pad">
+        <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px",marginBottom:14}}>Pr. koncept · måned</div>
+        {koncept.length===0 ? <div style={{color:"var(--ink-3)",fontSize:14}}>Ingen lukkede arrangementer endnu.</div> :
+          koncept.map((k,i)=><div key={i} style={{marginBottom:14}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6,fontSize:13.5}}>
+              <CDot name={k.navn}/><b style={{fontVariantNumeric:"tabular-nums"}}>{kr(k.omsaetning)}</b></div>
+            <div className="cbar"><i style={{width:Math.max(3,(k.omsaetning/kmax)*100)+"%",background:cColor(k.navn)}}></i></div>
+          </div>)}
+      </div>
+    </div>
+
+    <div className="sectitle">Kræver handling</div>
+    <div className="grid" style={{gridTemplateColumns:"1fr 1fr 1fr"}}>
+      <ActionList title="Mangler faktura" fallback={dash.manglende_fakturaer_liste} onClick={()=>setModal({k:"faktura"})}
+        render={r=>[r.kunde,kr(r.beloeb)]}/>
+      <MiniList title="Kladder klar" empty="Ingen kladder venter"
+        rows={(adm?.kladder||[]).filter(k=>k.status==="klar")} render={k=>[k.emne||"(uden emne)",k.modtager||"—"]}/>
+      <MiniList title="Afventer godkendelse" empty="Ingen venter"
+        rows={(adm?.medarbejdere||[]).filter(m=>m.status==="afventer_godkendelse")} render={m=>[m.navn,"Ny medarbejder"]}/>
+    </div>
+
+    <div className="sectitle">Seneste aktivitet</div>
+    <div className="card pad">
+      {akt.length===0?<Empty title="Ingen aktivitet endnu"/>:akt.map((a,i)=>
+        <div key={i} className="row"><div className="ic">{IC.overblik}</div>
+          <div className="gr"><b>{aktLabel(a.handling)}</b><span>{a.hvem==="admin"?"William":a.hvem==="enzo"?"Enzo":a.hvem}</span></div>
+          <div className="rt">{fmtDate(a.tid,true)}</div></div>)}
+    </div>
+  </>;
+}
+function MiniList({title,rows,render,empty,onClick}){
+  return <div className="card pad" style={{cursor:onClick?"pointer":"default"}} onClick={onClick}>
+    <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px",marginBottom:10}}>{title}</div>
+    {(!rows||rows.length===0)?<div style={{color:"var(--ink-3)",fontSize:13.5,padding:"6px 0"}}>{empty}</div>:
+      rows.slice(0,5).map((r,i)=>{const[a,b]=render(r);return <div key={i} className="row" style={{padding:"9px 2px"}}>
+        <div className="gr"><b>{a}</b><span>{b}</span></div></div>;})}
+  </div>;
+}
+function ActionList({title,fallback,render,onClick}){
+  const rows=fallback||[];
+  return <div className="card pad" style={{cursor:onClick?"pointer":"default"}} onClick={onClick}>
+    <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px",marginBottom:10}}>{title}</div>
+    {rows.length===0?<div style={{color:"var(--ink-3)",fontSize:13.5,padding:"6px 0"}}>Alt faktureret ✓</div>:
+      rows.slice(0,5).map((r,i)=>{const[a,b]=render(r);return <div key={i} className="row" style={{padding:"9px 2px"}}>
+        <div className="gr"><b>{a}</b><span>{b}</span></div></div>;})}
+  </div>;
+}
+
+/* ============ ARRANGEMENTER ============ */
+function Arrangementer({adm,setModal}){
+  const [tab,setTab]=useState("kommende");
+  const all=adm?.arrangementer||[];
+  const rows=tab==="kommende"?all.filter(a=>!a.fortid):all;
+  return <>
+    <Tabs tabs={[["kommende","Kommende"],["alle","Alle (inkl. fortid)"]]} tab={tab} set={setTab}/>
+    <div className="card" style={{marginTop:14,overflow:"hidden"}}>
+      {rows.length===0?<Empty title="Ingen arrangementer" sub="Tryk “Nyt arrangement” for at oprette et."/>:
+      <table className="tbl"><thead><tr><th>Dato</th><th>Kunde</th><th>Koncept</th><th>Kuverter</th><th>Bemanding</th><th className="num">Beløb</th><th>Status</th></tr></thead>
+      <tbody>{rows.map(b=>
+        <tr key={b.id} className="clk" onClick={()=>setModal({k:"booking",data:b})}>
+          <td><b>{fmtDate(b.event_date,true)}</b></td>
+          <td>{b.kunde}</td>
+          <td><CDot name={b.koncept}/></td>
+          <td className="num">{b.covers??"—"}</td>
+          <td className="num" style={{color:b.staff_confirmed<b.staff_required?"var(--orange)":"var(--ink-2)"}}>{b.staff_confirmed}/{b.staff_required}</td>
+          <td className="num">{b.beloeb?kr(b.beloeb):<span className="muted">mangler</span>}</td>
+          <td><Pill status={b.status}/></td>
+        </tr>)}</tbody></table>}
+    </div>
+  </>;
+}
+function Tabs({tabs,tab,set}){
+  return <div style={{display:"inline-flex",background:"var(--surface-3)",borderRadius:11,padding:3,gap:2}}>
+    {tabs.map(([k,t])=><button key={k} onClick={()=>set(k)} style={{padding:"7px 15px",borderRadius:9,fontSize:13.5,fontWeight:560,
+      background:tab===k?"var(--surface)":"transparent",color:tab===k?"var(--ink)":"var(--ink-2)",
+      boxShadow:tab===k?"var(--shadow)":"none"}}>{t}</button>)}</div>;
+}
+
+/* ============ KUNDER ============ */
+function Kunder({adm,setModal}){
+  const [q,setQ]=useState("");
+  const rows=(adm?.kunder||[]).filter(c=>!q|| (c.navn||"").toLowerCase().includes(q.toLowerCase()) || (c.firma||"").toLowerCase().includes(q.toLowerCase()));
+  return <>
+    <div className="fld" style={{maxWidth:320,marginBottom:14}}><Input placeholder="Søg kunde…" value={q} onChange={e=>setQ(e.target.value)}/></div>
+    <div className="card" style={{overflow:"hidden"}}>
+      {rows.length===0?<Empty title="Ingen kunder"/>:
+      <table className="tbl"><thead><tr><th>Navn</th><th>Type</th><th className="num">Arrangementer</th><th className="num">Omsætning</th><th>Næste</th></tr></thead>
+      <tbody>{rows.map(c=>
+        <tr key={c.id} className="clk" onClick={()=>setModal({k:"kunde",data:c})}>
+          <td><b>{c.firma||c.navn}</b>{c.firma&&c.navn&&<div className="muted" style={{fontSize:12.5}}>{c.navn}</div>}</td>
+          <td>{lbl(CTYPES,c.type)}{c.loyal&&<span className="chip" style={{marginLeft:8}}>⭐ Loyal</span>}</td>
+          <td className="num">{c.antal_arrangementer}</td>
+          <td className="num">{kr(c.omsaetning)}</td>
+          <td className="muted">{c.naeste_event?fmtDate(c.naeste_event):"—"}</td>
+        </tr>)}</tbody></table>}
+    </div>
+  </>;
+}
+
+/* ============ MEDARBEJDERE ============ */
+function Medarbejdere({adm,act,setModal,busy}){
+  const rows=adm?.medarbejdere||[];
+  const pending=rows.filter(m=>m.status==="afventer_godkendelse");
+  return <>
+    {pending.length>0 && <>
+      <div className="sectitle" style={{marginTop:0}}>Venter på din godkendelse</div>
+      <div className="grid" style={{gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",marginBottom:8}}>
+        {pending.map(m=><div key={m.id} className="card pad" style={{display:"flex",alignItems:"center",gap:12}}>
+          <div className="av" style={{width:38,height:38,borderRadius:"50%",background:"var(--surface-3)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:650,color:"var(--ink-2)"}}>{(m.navn||"?")[0]}</div>
+          <div style={{flex:1}}><b style={{fontSize:14.5}}>{m.navn}</b><div style={{fontSize:12.5,color:"var(--ink-3)"}}>Ny medarbejder</div></div>
+          <button className="btn btn-primary btn-sm" disabled={busy} onClick={()=>act("medarbejder_godkend",{navn:m.navn},m.navn+" er godkendt")}>{IC.check}Godkend</button>
+        </div>)}
+      </div></>}
+    <div className="card" style={{overflow:"hidden"}}>
+      {rows.length===0?<Empty title="Ingen medarbejdere"/>:
+      <table className="tbl"><thead><tr><th>Navn</th><th>Telefon</th><th className="num">Timeløn</th><th className="num">Timer · md</th><th className="num">Løn · md</th><th>Status</th></tr></thead>
+      <tbody>{rows.map(m=>
+        <tr key={m.id} className="clk" onClick={()=>setModal({k:"staff",data:m})}>
+          <td><b>{m.navn}</b></td><td className="muted">{m.telefon||"—"}</td>
+          <td className="num">{m.timeloen?kr(m.timeloen):"—"}</td>
+          <td className="num">{m.timer_maaned||0}</td>
+          <td className="num">{kr(m.loen_maaned)}</td>
+          <td><Pill status={m.status}/></td>
+        </tr>)}</tbody></table>}
+    </div>
+  </>;
+}
+
+/* ============ KLADDER ============ */
+function Kladder({adm,setModal}){
+  const [tab,setTab]=useState("klar");
+  const all=adm?.kladder||[];
+  const rows=tab==="alle"?all:all.filter(k=>k.status===tab);
+  return <>
+    <Tabs tabs={[["klar","Klar"],["sendt","Sendt"],["alle","Alle"]]} tab={tab} set={setTab}/>
+    <div className="grid" style={{gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",marginTop:14}}>
+      {rows.length===0?<div className="card"><Empty title="Ingen kladder her"/></div>:
+        rows.map(k=><div key={k.id} className="card pad clk" style={{cursor:"pointer"}} onClick={()=>setModal({k:"kladde",data:k})}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span className="chip">{lbl(K_TYPE,k.type)}</span><Pill status={k.status}/></div>
+          <b style={{fontSize:15,display:"block",marginBottom:4}}>{k.emne||"(uden emne)"}</b>
+          <div style={{fontSize:13,color:"var(--ink-3)",marginBottom:8}}>{k.modtager||"ingen modtager"}</div>
+          <div style={{fontSize:13,color:"var(--ink-2)",lineHeight:1.5,maxHeight:60,overflow:"hidden",
+            display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>{k.tekst}</div>
+        </div>)}
+    </div>
+  </>;
+}
+
+/* ============ FAKTURAER ============ */
+function Fakturaer({adm,setModal}){
+  const rows=adm?.fakturaer||[];
+  return <div className="card" style={{overflow:"hidden"}}>
+    {rows.length===0?<Empty title="Ingen fakturaer" sub="Tryk “Ny faktura” for at oprette en."/>:
+    <table className="tbl"><thead><tr><th>Kunde</th><th>Arrangement</th><th className="num">Beløb</th><th>Oprettet</th><th>Status</th></tr></thead>
+    <tbody>{rows.map(f=>
+      <tr key={f.id} className="clk" onClick={()=>setModal({k:"faktura",data:f})}>
+        <td><b>{f.kunde}</b></td><td className="muted">{f.event_date?fmtDate(f.event_date):"—"}</td>
+        <td className="num">{kr(f.beloeb)}</td><td className="muted">{fmtDate(f.oprettet)}</td>
+        <td><Pill status={f.status}/></td>
+      </tr>)}</tbody></table>}
+  </div>;
+}
+
+/* ============ SAMTALER ============ */
+function Samtaler({adm,setModal}){
+  const rows=adm?.samtaler||[];
+  return <div className="card" style={{overflow:"hidden"}}>
+    {rows.length===0?<Empty title="Ingen samtaler endnu"/>:
+      rows.map((s,i)=><div key={i} className="row clk" style={{padding:"13px 16px",cursor:"pointer"}} onClick={()=>setModal({k:"samtale",data:s})}>
+        <div className="ic" style={{borderRadius:"50%"}}>{(s.navn||"?")[0]}</div>
+        <div className="gr"><b>{s.navn}</b><span>{s.sidste||"—"}</span></div>
+        <div className="rt">{s.antal} beskeder</div>
+      </div>)}
+  </div>;
+}
+
+/* ============ VIDEN ============ */
+function Viden({toast}){
+  const [rows,setRows]=useState(null);
+  const [adding,setAdding]=useState(false);
+  const load=useCallback(async()=>{ const {data,error}=await supa.from("videnbase").select("*").order("created_at",{ascending:false});
+    if(error){toast(error.message,true);setRows([]);} else setRows(data||[]); },[toast]);
+  useEffect(()=>{load();},[load]);
+  const del=async(r)=>{ if(!confirm("Slet “"+(r.titel||"")+"”?"))return;
+    const {error}=await supa.from("videnbase").delete().eq("id",r.id);
+    if(error)toast(error.message,true);else{toast("Slettet");load();} };
+  if(rows===null) return <div className="center"><Spin/></div>;
+  return <>
+    <button className="btn btn-primary" style={{marginBottom:16}} onClick={()=>setAdding(true)}>{IC.plus}Tilføj viden</button>
+    <div className="grid" style={{gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))"}}>
+      {rows.length===0?<div className="card"><Empty title="Ingen viden endnu" sub="Upload menuer, åbningstider, logoer mm."/></div>:
+        rows.map(r=><div key={r.id} className="card pad">
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+            <span className="chip">{r.type||"tekst"}</span>
+            <button className="btn btn-danger btn-sm" onClick={()=>del(r)}>{IC.trash}</button></div>
+          <b style={{display:"block",margin:"10px 0 5px",fontSize:15}}>{r.titel||"(uden titel)"}</b>
+          {r.fil_url?<a href={r.fil_url} target="_blank" rel="noreferrer">Åbn fil →</a>:
+            <div style={{fontSize:13,color:"var(--ink-2)",lineHeight:1.5,maxHeight:80,overflow:"hidden"}}>{r.indhold}</div>}
+        </div>)}
+    </div>
+    {adding && <VidenAdd close={()=>setAdding(false)} done={()=>{setAdding(false);load();}} toast={toast}/>}
+  </>;
+}
+function VidenAdd({close,done,toast}){
+  const [mode,setMode]=useState("tekst");
+  const [titel,setTitel]=useState(""); const [indhold,setIndhold]=useState("");
+  const [file,setFile]=useState(null); const [busy,setBusy]=useState(false);
+  const save=async()=>{
+    if(!titel.trim()){toast("Giv det en titel",true);return;}
+    setBusy(true);
+    try{
+      if(mode==="tekst"){
+        const {error}=await supa.from("videnbase").insert({titel:titel.trim(),type:"tekst",indhold});
+        if(error)throw error;
+      } else {
+        if(!file){toast("Vælg en fil",true);setBusy(false);return;}
+        const path=Date.now()+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+        const up=await supa.storage.from("videnbase").upload(path,file,{upsert:false});
+        if(up.error)throw up.error;
+        const {data:pub}=supa.storage.from("videnbase").getPublicUrl(path);
+        const {error}=await supa.from("videnbase").insert({titel:titel.trim(),type:"fil",fil_sti:path,fil_url:pub.publicUrl,mime:file.type});
+        if(error)throw error;
+      }
+      toast("Tilføjet"); done();
+    }catch(e){toast(e.message||"Fejl",true);} finally{setBusy(false);}
+  };
+  return <Modal title="Tilføj viden" onClose={close} footer={<>
+    <button className="btn btn-sec" onClick={close}>Annullér</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:"Gem"}</button></>}>
+    <Tabs tabs={[["tekst","Tekst"],["fil","Fil / billede"]]} tab={mode} set={setMode}/>
+    <div style={{height:16}}/>
+    <Field label="Titel"><Input value={titel} onChange={e=>setTitel(e.target.value)} placeholder="fx Tivoli åbningstider"/></Field>
+    {mode==="tekst"
+      ? <Field label="Indhold"><textarea value={indhold} onChange={e=>setIndhold(e.target.value)} placeholder="Skriv informationen Enzo skal kende…"/></Field>
+      : <Field label="Fil" hint="Billede, PDF eller dokument"><Input type="file" onChange={e=>setFile(e.target.files[0])}/></Field>}
+  </Modal>;
+}
+
+/* ============ INDSTILLINGER ============ */
+function Indstillinger({act,toast,busy}){
+  const [cfg,setCfg]=useState(null);
+  const [bot,setBot]=useState(""); const [admin,setAdmin]=useState("");
+  useEffect(()=>{ supa.rpc("admin_config").then(({data,error})=>{ if(error){toast(error.message,true);setCfg({});return;}
+    const c=data||{}; setCfg(c); setBot((c.enzo_bot_username??"")+""); setAdmin((c.admin_telegram_id??"")+""); }); },[toast]);
+  if(cfg===null) return <div className="center"><Spin/></div>;
+  const save=async(key,val)=>{ await act("config_set",{key,value:val},"Gemt"); };
+  return <div style={{maxWidth:560}}>
+    <div className="card pad" style={{marginBottom:16}}>
+      <Field label="Enzo bot-brugernavn" hint="Bruges i onboarding-links: t.me/<navn>?start=…">
+        <div style={{display:"flex",gap:8}}><Input value={bot} onChange={e=>setBot(e.target.value)} placeholder="Casafood_enzo_bot"/>
+          <button className="btn btn-sec" disabled={busy} onClick={()=>save("enzo_bot_username",bot.trim())}>Gem</button></div></Field>
+      <Field label="Williams Telegram-ID" hint="Hvem Enzo sender notifikationer og rapporter til">
+        <div style={{display:"flex",gap:8}}><Input value={admin} onChange={e=>setAdmin(e.target.value)} placeholder="170…"/>
+          <button className="btn btn-sec" disabled={busy} onClick={()=>save("admin_telegram_id",admin.trim())}>Gem</button></div></Field>
+    </div>
+    <div className="card pad">
+      <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px",marginBottom:12}}>Al opsætning</div>
+      <dl className="dl">{Object.entries(cfg).map(([k,v])=><React.Fragment key={k}>
+        <dt>{k}</dt><dd style={{wordBreak:"break-word"}}>{typeof v==="object"?JSON.stringify(v):String(v)}</dd></React.Fragment>)}</dl>
+    </div>
+  </div>;
+}
+
+/* ============ MODAL ROUTER ============ */
+function ModalRouter({modal,adm,act,busy,setModal}){
+  const close=()=>setModal(null);
+  switch(modal.k){
+    case "booking": return <BookingModal data={modal.data} adm={adm} act={act} busy={busy} close={close} setModal={setModal}/>;
+    case "customer": return <CustomerModal data={modal.data} act={act} busy={busy} close={close}/>;
+    case "kunde": return <KundeDetalje data={modal.data} act={act} busy={busy} close={close} setModal={setModal}/>;
+    case "staff": return <StaffModal data={modal.data} act={act} busy={busy} close={close} setModal={setModal}/>;
+    case "kladde": return <KladdeModal data={modal.data} adm={adm} act={act} busy={busy} close={close}/>;
+    case "faktura": return <FakturaModal data={modal.data} adm={adm} act={act} busy={busy} close={close}/>;
+    case "samtale": return <SamtaleModal data={modal.data} close={close}/>;
+    case "link": return <LinkModal data={modal.data} close={close}/>;
+    case "bekraeftelse": return <BekModal data={modal.data} close={close}/>;
+    case "confirm": return <ConfirmModal data={modal.data} close={close}/>;
+    default: return null;
+  }
+}
+
+function ConfirmModal({data,close}){
+  const [busy,setBusy]=useState(false);
+  return <Modal title={data.title||"Er du sikker?"} onClose={close} footer={<>
+    <button className="btn btn-sec" onClick={close}>Annullér</button>
+    <button className="btn btn-danger" disabled={busy} onClick={async()=>{setBusy(true);await data.onConfirm();setBusy(false);close();}}>{busy?<Spin/>:(data.cta||"Slet")}</button></>}>
+    <p style={{margin:0,color:"var(--ink-2)",lineHeight:1.5}}>{data.besked}</p>
+  </Modal>;
+}
+
+/* ---- Arrangement ---- */
+function BookingModal({data,adm,act,busy,close,setModal}){
+  const edit=!!data;
+  const [f,setF]=useState(()=>edit?{
+    event_date:toInput(data.event_date),location:data.location,food_type:data.food_type||"",
+    covers:data.covers??"",staff_required:data.staff_required??"",staff_confirmed:data.staff_confirmed??"",
+    total_price:data.beloeb??"",status:data.status
+  }:{event_date:"",location:"food_truck",food_type:"",covers:"",staff_required:"",total_price:"",customer_id:"",name:"",email:""});
+  const up=(k,v)=>setF(s=>({...s,[k]:v}));
+  const customers=adm?.kunder||[];
+  const save=async()=>{
+    if(edit){
+      const r=await act("booking_opdater",{booking_id:data.id,event_date:fromInput(f.event_date),location:f.location,
+        food_type:f.food_type,covers:f.covers,staff_required:f.staff_required,staff_confirmed:f.staff_confirmed,
+        total_price:f.total_price,status:f.status},"Arrangement opdateret");
+      if(r)close();
+    } else {
+      const p={event_date:fromInput(f.event_date),location:f.location,food_type:f.food_type,
+        covers:f.covers,staff_required:f.staff_required,total_price:f.total_price};
+      if(f.customer_id) p.customer_id=f.customer_id; else { p.name=f.name; p.email=f.email; }
+      const r=await act("booking_opret",p,"Arrangement oprettet"); if(r)close();
+    }
+  };
+  return <Modal title={edit?"Arrangement":"Nyt arrangement"} onClose={close} footer={<>
+    {edit && <button className="btn btn-danger" style={{marginRight:"auto"}} disabled={busy}
+      onClick={()=>setModal({k:"confirm",data:{title:"Slet arrangement",besked:"Arrangementet for "+data.kunde+" slettes permanent.",cta:"Slet arrangement",
+        onConfirm:async()=>{await act("booking_slet",{id:data.id},"Arrangement slettet");}}})}>{IC.trash}Slet</button>}
+    <button className="btn btn-sec" onClick={close}>Luk</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:(edit?"Gem ændringer":"Opret")}</button></>}>
+    {edit && <div className="minicard" style={{marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div><CDot name={data.koncept}/><div style={{fontSize:13,color:"var(--ink-3)",marginTop:3}}>{data.kunde}</div></div>
+      <div style={{display:"flex",gap:8}}>
+        <button className="btn btn-sec btn-sm" disabled={busy} onClick={async()=>{const r=await act("booking_generer_bekraeftelse",{id:data.id},"Bekræftelse genereret");if(r)setModal({k:"bekraeftelse",data:r.bekraeftelse});}}>Generér bekræftelse</button>
+        <button className="btn btn-sec btn-sm" disabled={busy} onClick={()=>setModal({k:"faktura",data:{_booking:data}})}>Opret faktura</button>
+      </div></div>}
+    {!edit && <Field label="Kunde">
+      <Select value={f.customer_id} onChange={v=>up("customer_id",v)} placeholder="— Ny kunde —"
+        options={customers.map(c=>[c.id,c.firma||c.navn])}/></Field>}
+    {!edit && !f.customer_id && <div className="frow">
+      <Field label="Kundenavn"><Input value={f.name} onChange={e=>up("name",e.target.value)} placeholder="Navn / firma"/></Field>
+      <Field label="Email"><Input value={f.email} onChange={e=>up("email",e.target.value)} placeholder="email"/></Field>
+    </div>}
+    <Field label="Dato og tid"><Input type="datetime-local" value={f.event_date} onChange={e=>up("event_date",e.target.value)}/></Field>
+    <div className="frow">
+      <Field label="Koncept"><Select value={f.location} onChange={v=>up("location",v)} options={LOCATIONS}/></Field>
+      <Field label="Madtype"><Select value={f.food_type} onChange={v=>up("food_type",v)} options={FOODTYPES} placeholder="—"/></Field>
+    </div>
+    <div className="frow">
+      <Field label="Antal kuverter"><Input type="number" value={f.covers} onChange={e=>up("covers",e.target.value)}/></Field>
+      <Field label="Pris (kr)"><Input type="number" value={f.total_price} onChange={e=>up("total_price",e.target.value)}/></Field>
+    </div>
+    <div className="frow">
+      <Field label="Vagter krævet"><Input type="number" value={f.staff_required} onChange={e=>up("staff_required",e.target.value)}/></Field>
+      {edit && <Field label="Vagter bekræftet"><Input type="number" value={f.staff_confirmed} onChange={e=>up("staff_confirmed",e.target.value)}/></Field>}
+    </div>
+    {edit && <Field label="Status"><Select value={f.status} onChange={v=>up("status",v)} options={B_STATUS}/></Field>}
+  </Modal>;
+}
+function BekModal({data,close}){
+  const copy=()=>{navigator.clipboard?.writeText(data);};
+  return <Modal title="Bekræftelse" onClose={close} footer={<>
+    <button className="btn btn-sec" onClick={copy}>Kopiér</button>
+    <button className="btn btn-primary" onClick={close}>Luk</button></>}>
+    <div className="minicard" style={{whiteSpace:"pre-wrap",lineHeight:1.55,fontSize:14}}>{data}</div>
+  </Modal>;
+}
+
+/* ---- Kunde (opret/rediger) ---- */
+function CustomerModal({data,act,busy,close}){
+  const edit=!!data;
+  const [f,setF]=useState(()=>({navn:data?.navn||"",firma:data?.firma||"",email:data?.email||"",
+    telefon:data?.telefon||"",adresse:data?.adresse||"",type:data?.type||"privat",noter:data?.noter||"",loyal:!!data?.loyal}));
+  const up=(k,v)=>setF(s=>({...s,[k]:v}));
+  const save=async()=>{
+    const p={navn:f.navn,firma:f.firma,email:f.email,telefon:f.telefon,adresse:f.adresse,type:f.type,noter:f.noter,loyal:f.loyal};
+    if(edit) p.id=data.id;
+    const r=await act(edit?"kunde_opdater":"kunde_opret",p,edit?"Kunde opdateret":"Kunde oprettet"); if(r)close();
+  };
+  return <Modal title={edit?"Rediger kunde":"Ny kunde"} onClose={close} footer={<>
+    <button className="btn btn-sec" onClick={close}>Annullér</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:"Gem"}</button></>}>
+    <div className="frow">
+      <Field label="Navn"><Input value={f.navn} onChange={e=>up("navn",e.target.value)}/></Field>
+      <Field label="Firma"><Input value={f.firma} onChange={e=>up("firma",e.target.value)}/></Field>
+    </div>
+    <div className="frow">
+      <Field label="Email"><Input value={f.email} onChange={e=>up("email",e.target.value)}/></Field>
+      <Field label="Telefon"><Input value={f.telefon} onChange={e=>up("telefon",e.target.value)}/></Field>
+    </div>
+    <Field label="Adresse"><Input value={f.adresse} onChange={e=>up("adresse",e.target.value)}/></Field>
+    <div className="frow">
+      <Field label="Type"><Select value={f.type} onChange={v=>up("type",v)} options={CTYPES}/></Field>
+      <Field label="Loyal kunde"><label className="check"><input type="checkbox" checked={f.loyal} onChange={e=>up("loyal",e.target.checked)}/> Markér som loyal</label></Field>
+    </div>
+    <Field label="Noter"><textarea value={f.noter} onChange={e=>up("noter",e.target.value)} style={{minHeight:80}}/></Field>
+  </Modal>;
+}
+
+/* ---- Kunde detalje (historik) ---- */
+function KundeDetalje({data,act,busy,close,setModal}){
+  const [d,setD]=useState(null);
+  const load=useCallback(async()=>{ const {data:res,error}=await supa.rpc("admin_kunde_historik",{p_id:data.id});
+    if(!error) setD(res); },[data.id]);
+  useEffect(()=>{load();},[load]);
+  const k=d?.kunde, n=d?.noegletal;
+  return <Modal title={data.firma||data.navn} onClose={close} wide footer={<>
+    <button className="btn btn-danger" style={{marginRight:"auto"}} disabled={busy} onClick={()=>setModal({k:"confirm",data:{
+      title:"Slet kunde",besked:"Kunden slettes. Eventuelle arrangementer bevares men mister kundetilknytning. Sæt evt. tving for at gennemtvinge.",cta:"Slet kunde",
+      onConfirm:async()=>{await act("kunde_slet",{id:data.id,tving:true},"Kunde slettet");}}})}>{IC.trash}Slet</button>
+    <button className="btn btn-sec" onClick={()=>setModal({k:"customer",data})}>{IC.edit}Rediger</button>
+    <button className="btn btn-primary" onClick={close}>Luk</button></>}>
+    {!d?<div className="center"><Spin/></div>:<>
+      <div className="stat3">
+        <div className="s"><b>{n.antal_arrangementer}</b><span>Arrangementer</span></div>
+        <div className="s"><b>{krShort(n.samlet_omsaetning)}</b><span>Omsætning</span></div>
+        <div className="s"><b>{n.gaester_i_alt||0}</b><span>Gæster i alt</span></div>
+      </div>
+      <div className="minicard" style={{marginBottom:18}}>
+        <dl className="dl">
+          {k.email&&<><dt>Email</dt><dd>{k.email}</dd></>}
+          {k.phone&&<><dt>Telefon</dt><dd>{k.phone}</dd></>}
+          {k.address&&<><dt>Adresse</dt><dd>{k.address}</dd></>}
+          <dt>Type</dt><dd>{lbl(CTYPES,k.type)}{k.loyalty_flag?" · ⭐ Loyal":""}</dd>
+          {k.notes&&<><dt>Noter</dt><dd>{k.notes}</dd></>}
+        </dl>
+      </div>
+      <div className="lab" style={{fontSize:12,fontWeight:640,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".3px",marginBottom:8}}>Historik</div>
+      {(d.arrangementer||[]).length===0?<div style={{color:"var(--ink-3)",fontSize:14,paddingBottom:10}}>Ingen arrangementer endnu.</div>:
+        <div className="card" style={{overflow:"hidden",marginBottom:6}}><table className="tbl">
+          <tbody>{d.arrangementer.map(b=><tr key={b.id}>
+            <td style={{width:8,paddingRight:0}}><span className="dot" style={{background:cColor(b.koncept)}}></span></td>
+            <td><b>{fmtDate(b.dato,true)}</b><div className="muted" style={{fontSize:12.5}}>{b.koncept} · {b.covers||"?"} kuverter</div></td>
+            <td className="num">{b.beloeb?kr(b.beloeb):"—"}</td>
+            <td><Pill status={b.status}/></td>
+          </tr>)}</tbody></table></div>}
+    </>}
+  </Modal>;
+}
+
+/* ---- Medarbejder ---- */
+function StaffModal({data,act,busy,close,setModal}){
+  const edit=!!data;
+  const [f,setF]=useState(()=>({navn:data?.navn||"",telefon:data?.telefon||"",timeloen:data?.timeloen??""}));
+  const up=(k,v)=>setF(s=>({...s,[k]:v}));
+  const save=async()=>{
+    if(edit){ const r=await act("medarbejder_opdater",{id:data.id,navn:f.navn,telefon:f.telefon,timeloen:f.timeloen},"Medarbejder opdateret"); if(r)close(); }
+    else { const r=await act("medarbejder_opret",{navn:f.navn,telefon:f.telefon,timeloen:f.timeloen},"Medarbejder oprettet"); if(r)close(); }
+  };
+  const link=async()=>{ const r=await act("medarbejder_generer_link",{id:data.id},"Link genereret"); if(r) setModal({k:"link",data:r}); };
+  return <Modal title={edit?data.navn:"Ny medarbejder"} onClose={close} footer={<>
+    {edit && <button className="btn btn-danger" style={{marginRight:"auto"}} disabled={busy} onClick={()=>setModal({k:"confirm",data:{
+      title:"Fjern medarbejder",besked:data.navn+" sættes inaktiv og mister adgang til Enzo. Timer og historik bevares.",cta:"Fjern",
+      onConfirm:async()=>{await act("medarbejder_afvis",{navn:data.navn},"Medarbejder fjernet");}}})}>{IC.trash}Fjern</button>}
+    <button className="btn btn-sec" onClick={close}>Luk</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:"Gem"}</button></>}>
+    {edit && <div className="minicard" style={{marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <div><Pill status={data.status}/>{data.timer_maaned>0&&<span style={{marginLeft:10,fontSize:13,color:"var(--ink-2)"}}>{data.timer_maaned} t · {kr(data.loen_maaned)} denne måned</span>}</div>
+      <button className="btn btn-sec btn-sm" disabled={busy} onClick={link}>{IC.link}Onboarding-link</button>
+    </div>}
+    {edit && data.status==="afventer_godkendelse" && <div className="minicard" style={{marginBottom:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontSize:13.5}}>Venter på din godkendelse</span>
+      <button className="btn btn-primary btn-sm" disabled={busy} onClick={async()=>{await act("medarbejder_godkend",{navn:data.navn},"Godkendt");close();}}>{IC.check}Godkend</button></div>}
+    <Field label="Navn"><Input value={f.navn} onChange={e=>up("navn",e.target.value)}/></Field>
+    <div className="frow">
+      <Field label="Telefon"><Input value={f.telefon} onChange={e=>up("telefon",e.target.value)}/></Field>
+      <Field label="Timeløn (kr)"><Input type="number" value={f.timeloen} onChange={e=>up("timeloen",e.target.value)}/></Field>
+    </div>
+    {!edit && <div className="hint" style={{marginTop:-6}}>Efter oprettelse kan du lave et onboarding-link, så medarbejderen kobler sig på Enzo med ét tryk.</div>}
+  </Modal>;
+}
+function LinkModal({data,close}){
+  const [copied,setCopied]=useState(false);
+  const copy=()=>{navigator.clipboard?.writeText(data.link);setCopied(true);setTimeout(()=>setCopied(false),1500);};
+  return <Modal title="Onboarding-link" onClose={close} footer={<button className="btn btn-primary" onClick={close}>Færdig</button>}>
+    <p style={{marginTop:0,color:"var(--ink-2)",lineHeight:1.5}}>Send dette link til <b>{data.navn}</b>. Når de trykker på det, kobler de sig automatisk til Enzo og bliver budt velkommen.</p>
+    <div className="minicard" style={{wordBreak:"break-all",fontSize:13.5,fontFamily:"ui-monospace,monospace"}}>{data.link}</div>
+    <button className="btn btn-primary" style={{marginTop:14,width:"100%",justifyContent:"center"}} onClick={copy}>{copied?"Kopieret ✓":"Kopiér link"}</button>
+  </Modal>;
+}
+
+/* ---- Kladde ---- */
+function KladdeModal({data,adm,act,busy,close}){
+  const edit=!!(data&&data.id);
+  const [f,setF]=useState(()=>({type:data?.type||"andet",email:data?.modtager||"",emne:data?.emne||"",tekst:data?.tekst||""}));
+  const up=(k,v)=>setF(s=>({...s,[k]:v}));
+  const save=async()=>{
+    if(edit){ const r=await act("kladde_opdater",{id:data.id,type:f.type,email:f.email,emne:f.emne,tekst:f.tekst},"Kladde opdateret"); if(r)close(); }
+    else { const r=await act("kladde_opret",{type:f.type,email:f.email,emne:f.emne,tekst:f.tekst},"Kladde oprettet"); if(r)close(); }
+  };
+  return <Modal title={edit?"Kladde":"Ny kladde"} onClose={close} wide footer={<>
+    {edit && <button className="btn btn-danger" style={{marginRight:"auto"}} disabled={busy}
+      onClick={async()=>{await act("kladde_slet",{id:data.id},"Kladde slettet");close();}}>{IC.trash}Slet</button>}
+    {edit && data.status==="klar" && <button className="btn btn-sec" disabled={busy}
+      onClick={async()=>{await act("kladde_marker_sendt",{id:data.id},"Markeret som sendt");close();}}>{IC.check}Markér sendt</button>}
+    <button className="btn btn-sec" onClick={close}>Luk</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:"Gem"}</button></>}>
+    <div className="frow">
+      <Field label="Type"><Select value={f.type} onChange={v=>up("type",v)} options={K_TYPE}/></Field>
+      <Field label="Modtager (email)"><Input value={f.email} onChange={e=>up("email",e.target.value)}/></Field>
+    </div>
+    <Field label="Emne"><Input value={f.emne} onChange={e=>up("emne",e.target.value)}/></Field>
+    <Field label="Tekst"><textarea value={f.tekst} onChange={e=>up("tekst",e.target.value)} style={{minHeight:200}}/></Field>
+  </Modal>;
+}
+
+/* ---- Faktura ---- */
+function FakturaModal({data,adm,act,busy,close}){
+  const edit=!!(data&&data.id);
+  const presetBooking=data?._booking;
+  const [f,setF]=useState(()=>({
+    booking_id:presetBooking?.id||data?.booking_id||"",
+    customer_id:data?.customer_id||"",
+    amount:edit?(data.beloeb??""):(presetBooking?.beloeb??""),
+    status:data?.status||"kladde"
+  }));
+  const up=(k,v)=>setF(s=>({...s,[k]:v}));
+  const bookings=(adm?.arrangementer||[]);
+  const save=async()=>{
+    if(edit){ const r=await act("faktura_opdater",{id:data.id,amount:f.amount,status:f.status},"Faktura opdateret"); if(r)close(); }
+    else {
+      const p={status:f.status,amount:f.amount};
+      if(f.booking_id) p.booking_id=f.booking_id; else if(f.customer_id) p.customer_id=f.customer_id;
+      const r=await act("faktura_opret",p,"Faktura oprettet"); if(r)close();
+    }
+  };
+  return <Modal title={edit?"Faktura":"Ny faktura"} onClose={close} footer={<>
+    {edit && <button className="btn btn-danger" style={{marginRight:"auto"}} disabled={busy}
+      onClick={async()=>{await act("faktura_slet",{id:data.id},"Faktura slettet");close();}}>{IC.trash}Slet</button>}
+    {edit && data.status!=="betalt" && <button className="btn btn-sec" disabled={busy}
+      onClick={async()=>{await act("faktura_marker_betalt",{id:data.id},"Markeret betalt");close();}}>{IC.check}Betalt</button>}
+    <button className="btn btn-sec" onClick={close}>Luk</button>
+    <button className="btn btn-primary" disabled={busy} onClick={save}>{busy?<Spin/>:"Gem"}</button></>}>
+    {edit && <div className="minicard" style={{marginBottom:16}}><b>{data.kunde}</b>
+      <div style={{fontSize:13,color:"var(--ink-3)",marginTop:2}}>{data.event_date?fmtDate(data.event_date):"Uden arrangement"}</div></div>}
+    {!edit && <Field label="Arrangement" hint="Vælg et arrangement, så hentes kunde og beløb automatisk">
+      <Select value={f.booking_id} onChange={v=>{const b=bookings.find(x=>x.id===v);up("booking_id",v);if(b&&!f.amount)up("amount",b.beloeb||"");}}
+        placeholder="— Uden arrangement —"
+        options={bookings.map(b=>[b.id,fmtDate(b.event_date)+" · "+b.kunde])}/></Field>}
+    {!edit && !f.booking_id && <Field label="Kunde">
+      <Select value={f.customer_id} onChange={v=>up("customer_id",v)} placeholder="— Vælg —" options={(adm?.kunder||[]).map(c=>[c.id,c.firma||c.navn])}/></Field>}
+    <div className="frow">
+      <Field label="Beløb (kr)"><Input type="number" value={f.amount} onChange={e=>up("amount",e.target.value)}/></Field>
+      <Field label="Status"><Select value={f.status} onChange={v=>up("status",v)} options={I_STATUS}/></Field>
+    </div>
+  </Modal>;
+}
+
+/* ---- Samtale ---- */
+function SamtaleModal({data,close}){
+  const [d,setD]=useState(null);
+  useEffect(()=>{ supa.rpc("admin_samtale",{p_session:data.session}).then(({data:r})=>setD(r)); },[data.session]);
+  return <Modal title={"Samtale · "+data.navn} onClose={close} wide footer={<button className="btn btn-primary" onClick={close}>Luk</button>}>
+    {!d?<div className="center"><Spin/></div>:
+      <div className="chat">{(d.beskeder||[]).length===0?<Empty title="Ingen beskeder"/>:
+        d.beskeder.map((m,i)=><div key={i} className={"bub "+(m.rolle==="bruger"?"u":m.rolle==="enzo"?"e":"s")}>{m.tekst}</div>)}</div>}
+  </Modal>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
